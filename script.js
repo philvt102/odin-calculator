@@ -5,37 +5,66 @@ let keypad = document.querySelector(`#buttons`);
 
 let a, op, b;
 
-function input(input){  
-    if(input=="="){operate(a,op,b);}
-    if(Number.isFinite(+input)){
-        if(!a){
-            a = input;
-            lcd.textContent = a;
-            return;
-        }
-        else if(!op && a.length<10){
-            a+=input;
-            lcd.textContent = a;
-            return;
-        }
-        else if(op && !b){
-            b = input;
-            lcd.textContent = b;
-            return;
-        }
-        else if(op && b.length<10){
-            b+=input;
-            lcd.textContent = b;
-            return;
-        }
+function clear(){
+    a = op = b = undefined;
+    lcd.textContent = lcd.textContent = `0000000000`;
+}
+function screen(int){
+    if(int.toString().length>10){
+        lcd.textContent = 'ERR';
     }
-    else{
+    else(lcd.textContent = int)
+}
+
+function input(input){  
+    if(input=="C"){clear();
+        return;
+    }
+    else if(input=="="){operate(a,op,b);
+        return;
+    }
+    else if(Number.isFinite(+input)){
+        input = Number(input);
+            if(!a){
+                a = input;
+                screen(a);
+                return;
+            }
+            else if(!op && a.toString().length<10){
+                a = Number(`${a}${input}`);
+                screen(a);
+                return;
+            }
+            else if(op && !b){
+                b = input;
+                screen(b);
+                return;
+            }
+            else if(op && b.toString().length<10){
+                b = Number(`${b}${input}`);
+                screen(b);
+                return;
+            }
+        }
+    else if(!op || !b){
         op = input;
+        return;
+    }
+    else{operate(a, op, b);
+        a = lcd.textContent;
+        op = input;
+        b = undefined;
         return;
     }
 }
 
 function operate(a, op, b){
+    if(op=="/" && b=="0"){
+        alert(`I'm sorry, Dave. I can't do that
+            Divide by zero error`);
+        clear();
+        return;
+    }
     let A=Number(a);
     let B = Number(b);
     let output;
@@ -48,7 +77,7 @@ function operate(a, op, b){
             break;
         case "/": output = A/B;
     }
-    lcd.textContent = output;
+    screen(output.toPrecision(9)*1);
 }
 
 const keys = [7,8,9,`+`,4,5,6,`-`,1,2,3,`/`,`C`,0,`=`,`*`];
